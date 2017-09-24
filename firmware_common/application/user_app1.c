@@ -138,27 +138,62 @@ static void UserApp1SM_Idle(void)
 {
   static u32 u32TimeCounter=0;
   static bool bLightIsOn=FALSE;
-  static u32 u32LightLimit=2000;
+  static u32 u32LightLimit1=2000,u32LightLimit2=0,u32LightLimit3=14;
   
-  u32TimeCounter++;
-  if(u32TimeCounter==u32LightLimit)
+  if(u32LightLimit1>15)
   {
-    u32TimeCounter=0;
-    if(bLightIsOn)
+    u32TimeCounter++;
+    u32LightLimit2++;
+    if(u32TimeCounter==u32LightLimit1)
     {
-      HEARTBEAT_OFF();
-      bLightIsOn=FALSE;
+      u32TimeCounter=0;
+      if(bLightIsOn)
+      {
+        HEARTBEAT_OFF();
+        bLightIsOn=FALSE;
+      }
+      else
+      {
+        HEARTBEAT_ON();
+        bLightIsOn=TRUE;
+      }
+      
     }
-    else
-    {
-      HEARTBEAT_ON();
-      bLightIsOn=TRUE;
-      u32LightLimit=u32LightLimit/2;
-    }
+     if(u32LightLimit2==2000)
+      {
+        u32LightLimit1=u32LightLimit1/2;
+        u32LightLimit2=0;
+        u32TimeCounter=0;
+      }
   }
-  if(u32LightLimit==0)
+  else
   {
-    u32
+    u32TimeCounter++;
+    u32LightLimit2++;
+    if(u32TimeCounter==u32LightLimit3)
+    {
+      u32TimeCounter=0;
+      if(bLightIsOn)
+      {
+        HEARTBEAT_OFF();
+        bLightIsOn=FALSE;
+      }
+      else
+      {
+        HEARTBEAT_ON();
+        bLightIsOn=TRUE;
+      }
+      
+    }
+    if(u32LightLimit2==2000)
+    {
+      if(u32LightLimit3!=500)
+      {
+        u32LightLimit3+=81;
+        u32LightLimit2=0;
+        u32TimeCounter=0;
+      }
+    }
   }
 } /* end UserApp1SM_Idle() */
     
