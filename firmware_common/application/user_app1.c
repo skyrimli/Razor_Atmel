@@ -138,9 +138,9 @@ static void UserApp1SM_Idle(void)
 {
   static u32 u32TimeCounter=0;
   static bool bLightIsOn=FALSE;
-  static u32 u32LightLimit1=2000,u32LightLimit2=0,u32LightLimit3=14;
+  static u32 u32LightLimit1=2048,u32LightLimit2=0,u32LightLimit3=16;
   
-  if(u32LightLimit1>15)
+  if(u32LightLimit1>=32)
   {
     u32TimeCounter++;
     u32LightLimit2++;
@@ -187,9 +187,9 @@ static void UserApp1SM_Idle(void)
     }
     if(u32LightLimit2==2000)
     {
-      if(u32LightLimit3!=500)
+      if(u32LightLimit3!=512)
       {
-        u32LightLimit3+=81;
+        u32LightLimit3=u32LightLimit3*2;
         u32LightLimit2=0;
         u32TimeCounter=0;
       }
