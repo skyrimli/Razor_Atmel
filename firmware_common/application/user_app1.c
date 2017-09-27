@@ -136,8 +136,44 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
 {
+  static u32 u32TimeCounter1=0,u32TimeCounter2=0;
+  static u8 u8i=0;
+  static u32 u32Array[]={0,10,20,30,40,50,60,70,80,90,100,90,80,70,60,50,40,30,20,10,0};
+  static u32* pu32DutyCycle=u32Array;
+  
+  u32TimeCounter1++;
+  u32TimeCounter2++;
+  
+if(u32TimeCounter1<=(*pu32DutyCycle/10))
+{
+  HEARTBEAT_ON();
+}
 
-} /* end UserApp1SM_Idle() */
+if(u32TimeCounter1>(*pu32DutyCycle/10))
+{
+  HEARTBEAT_OFF();
+}
+
+if(u32TimeCounter1==10)
+{
+  u32TimeCounter1=0;
+}
+
+if(u32TimeCounter2==100)
+  {
+    u8i++;
+    u32TimeCounter2=0;
+    pu32DutyCycle++;
+    
+    if(u8i==21)
+    {
+      u8i=0;
+      pu32DutyCycle=pu32DutyCycle-21;
+    }
+    
+  }
+}
+ /* end UserApp1SM_Idle() */
     
 
 /*-------------------------------------------------------------------------------------------------------------------*/
