@@ -87,7 +87,7 @@ Promises:
 */
 void UserApp1Initialize(void)
 {
- 
+
   /* If good initialization, set state to Idle */
   if( 1 )
   {
@@ -136,7 +136,116 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
 {
+  static u16 u16TimeCounter = 3825;
+  static u8 u8ColourCounter = 0;
 
+  u16TimeCounter--;
+  if(u16TimeCounter>=1905)
+  {
+    LedOff(RED);
+    LedPWM(WHITE,LED_PWM_100);
+    LedOn(WHITE);
+  }
+  if(u16TimeCounter<1905&&u16TimeCounter>=945)
+  {
+    LedOff(WHITE);
+    LedPWM(PURPLE,LED_PWM_70);
+    LedOn(PURPLE);
+  }
+  if(u16TimeCounter<945&&u16TimeCounter>=465)
+  {
+    LedOff(PURPLE);
+    LedPWM(BLUE,LED_PWM_50);
+    LedOn(BLUE);
+  }
+  if(u16TimeCounter<465&&u16TimeCounter>=225)
+  {
+    LedOff(BLUE);
+    LedPWM(CYAN,LED_PWM_30);
+    LedOn(CYAN);
+  }
+  if(u16TimeCounter<225&&u16TimeCounter>=105)
+  {
+    LedOff(CYAN);
+    LedPWM(GREEN,LED_PWM_20);
+    LedOn(GREEN);
+  }
+  if(u16TimeCounter<105&&u16TimeCounter>=45)
+  {
+    LedOff(GREEN);
+    LedPWM(YELLOW,LED_PWM_15);
+    LedOn(YELLOW);
+  }
+  if(u16TimeCounter<45&&u16TimeCounter>=15)
+  {
+    LedOff(YELLOW);
+    LedPWM(ORANGE,LED_PWM_10);
+    LedOn(ORANGE);
+  }
+  if(u16TimeCounter<15&&u16TimeCounter>0)
+  {
+    LedOff(ORANGE);
+    LedPWM(RED,LED_PWM_5);
+    LedOn(RED);
+  }
+  if(u16TimeCounter==0)
+  {
+    u8ColourCounter++;
+    u16TimeCounter=3825;
+  }
+  if(u8ColourCounter==0)
+  {
+    LedOn(LCD_RED);
+    LedOn(LCD_GREEN);
+    LedOn(LCD_BLUE);
+  }//white
+  if(u8ColourCounter==1)
+  {
+    LedOn(LCD_RED);
+    LedOff(LCD_GREEN);
+    LedOn(LCD_BLUE);
+  }//purple
+  if(u8ColourCounter==2)
+  {
+    LedOff(LCD_RED);
+    LedOff(LCD_GREEN);
+    LedOn(LCD_BLUE);
+  }//blue
+  if(u8ColourCounter==3)
+  {
+    LedOff(LCD_RED);
+    LedOn(LCD_GREEN);
+    LedOn(LCD_BLUE);
+  }//cyan
+  if(u8ColourCounter==4)
+  {
+    LedOff(LCD_RED);
+    LedOn(LCD_GREEN);
+    LedOff(LCD_BLUE);
+  }//green
+  if(u8ColourCounter==5)
+  {
+    LedOn(LCD_RED);
+    LedOn(LCD_GREEN);
+    LedOff(LCD_BLUE);
+  }//yellow
+  if(u8ColourCounter==6)
+  {
+    LedOn(LCD_RED);
+    LedOff(LCD_GREEN);
+    LedOff(LCD_BLUE);
+  }//red
+  if(u8ColourCounter==7)
+  {
+    LedOff(LCD_RED);
+    LedOff(LCD_GREEN);
+    LedOff(LCD_BLUE);
+  }//no colour
+  if(u8ColourCounter==8)
+  {
+    u8ColourCounter=0;
+  }
+  //1920 960 480 240 120 60 30 15
 } /* end UserApp1SM_Idle() */
     
 
