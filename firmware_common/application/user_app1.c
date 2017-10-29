@@ -87,7 +87,9 @@ Promises:
 */
 void UserApp1Initialize(void)
 {
- 
+  
+  LedOff(RED);
+  LedOff(GREEN);
   /* If good initialization, set state to Idle */
   if( 1 )
   {
@@ -136,7 +138,119 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
 {
+  static u8 au8PinNum0[10]={0,1,2,0,1,2,0,1,2,0};
+  static u8 au8PinNum1[10]={0,0,0,0,0,0,0,0,0,0};
+  static u8 u8Counter = 0;
+  static u8 u8Compare = 0;
+  static u8 i = 0;
+  static bool bRedLight = TRUE;
+  static bool bReset = FALSE;
+  static bool bButton3Held = FALSE;
+  static bool bPassWord = TRUE;
+  
+  
+  if(bButton3Held==FALSE)
+  {
+    if(IsButtonHeld(BUTTON3,2000))
+    { 
+      ButtonAcknowledge(BUTTON3);
+      bReset = TRUE;
+    }
+  } 
+  if(bReset)
+  {   
+      if(bPassWord)
+      {
+        for(i=0;i<10;i++)
+        {
+          au8PinNum0[i]=0;
+        }
+        bPassWord=FALSE;
+        LedBlink(RED,LED_2HZ);
+        LedBlink(GREEN,LED_2HZ);
+        u8Counter = 0;
+      } 
+      if(WasButtonPressed(BUTTON0))
+      {
+        ButtonAcknowledge(BUTTON0);
+        au8PinNum0[u8Counter]=0;
+        u8Counter++;
+      }
+      if(WasButtonPressed(BUTTON1))
+      {
+        ButtonAcknowledge(BUTTON1);
+        au8PinNum0[u8Counter]=1;
+        u8Counter++;
+      }
+      if(WasButtonPressed(BUTTON2))
+      {
+        ButtonAcknowledge(BUTTON2);
+        au8PinNum0[u8Counter]=2;
+        u8Counter++;
+      }
+      if(WasButtonPressed(BUTTON3))
+      {
+        ButtonAcknowledge(BUTTON3);
+        bReset=FALSE;
+        LedOff(GREEN);
+        bRedLight=TRUE;
+        bButton3Held=TRUE;
+        u8Counter = 0;
+      }
+  }
 
+  if (bButton3Held)
+  {
+    if(bRedLight)
+    {
+      LedOn(RED);
+      
+      if(WasButtonPressed(BUTTON0))
+      {
+        ButtonAcknowledge(BUTTON0);
+        au8PinNum1[u8Counter]=0;
+        u8Counter++;
+      }
+      if(WasButtonPressed(BUTTON1))
+      {
+        ButtonAcknowledge(BUTTON1);
+        au8PinNum1[u8Counter]=1;
+        u8Counter++;
+      }
+      if(WasButtonPressed(BUTTON2))
+      {
+        ButtonAcknowledge(BUTTON2);
+        au8PinNum1[u8Counter]=2;
+        u8Counter++;
+      }
+    }
+    if(WasButtonPressed(BUTTON3))
+    {
+      ButtonAcknowledge(BUTTON3);
+      u8Counter=0;
+      
+      for(i=0;i<10;i++)
+      {
+        if(au8PinNum0[i]^au8PinNum1[i])
+        {
+          u8Compare++;
+        }
+      }
+      if(u8Compare==0)
+      {
+        u8Counter=0;
+        LedOff(RED);
+        bRedLight=FALSE;
+        LedBlink(GREEN,LED_2HZ);
+      }
+      else
+      {
+        u8Counter=0;
+        bRedLight = FALSE;
+        LedBlink(RED,LED_2HZ);
+      }
+    }
+  }
 } /* end UserApp1SM_Idle() */
     
 
