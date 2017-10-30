@@ -224,6 +224,21 @@ static void UserApp1SM_Idle(void)
         u8Counter++;
       }
     }
+    else
+    {
+      if(WasButtonPressed(BUTTON3))
+      {
+        ButtonAcknowledge(BUTTON3);
+        u8Counter=0;
+        bRedLight = TRUE;
+        LedOff(GREEN);
+        u8Compare=0;
+        for(i=0;i<10;i++)
+        {
+          au8PinNum1[i]=0;
+        }
+      }
+    }
     if(WasButtonPressed(BUTTON3))
     {
       ButtonAcknowledge(BUTTON3);
@@ -240,7 +255,7 @@ static void UserApp1SM_Idle(void)
       {
         u8Counter=0;
         LedOff(RED);
-        bRedLight=FALSE;
+        bRedLight = FALSE;
         LedBlink(GREEN,LED_2HZ);
       }
       else
