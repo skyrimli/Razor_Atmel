@@ -52,7 +52,8 @@ extern volatile u32 G_u32ApplicationFlags;             /* From main.c */
 extern volatile u32 G_u32SystemTime1ms;                /* From board-specific source file */
 extern volatile u32 G_u32SystemTime1s;                 /* From board-specific source file */
 
-
+extern u8 G_au8DebugScanfBuffer[];
+extern u8 G_au8DebugScanfCharCount;
 /***********************************************************************************************************************
 Global variable definitions with scope limited to this local application.
 Variable names shall start with "UserApp1_" and be declared as static.
@@ -136,7 +137,43 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
 {
-
+  static u8 au8Name[]={'L','i','z','h','i','h','a','o'};
+  static u32 u32NameTCounter=0;
+  static u8 i = 0;
+  static u8 j = 0;
+  static u8 k = 0;
+  static u8 u8Counter = 0;
+  static u32 u32NameCounter = 0;
+  u32NameCounter=0;
+  for(i=0;i<DEBUG_SCANF_BUFFER_SIZE;i++)
+  {
+    if(G_au8DebugScanfBuffer[i]=='L')
+    {
+      k=0;
+      for(j=i;j<i+8;j++)
+      {
+        if(au8Name[k]==G_au8DebugScanfBuffer[j])
+        {
+          u8Counter++;
+          k++;
+        }
+      }
+      if(u8Counter==8)
+      {
+        u32NameCounter++;
+      }
+      u8Counter=0;
+    }     
+  }
+  if(u32NameTCounter<u32NameCounter)
+  {
+    u32NameTCounter=u32NameCounter;
+    DebugLineFeed();
+    DebugPrintNumber(u32NameTCounter);
+    DebugLineFeed();
+  }
+  
+  
 } /* end UserApp1SM_Idle() */
     
 
