@@ -52,7 +52,8 @@ extern volatile u32 G_u32ApplicationFlags;             /* From main.c */
 extern volatile u32 G_u32SystemTime1ms;                /* From board-specific source file */
 extern volatile u32 G_u32SystemTime1s;                 /* From board-specific source file */
 
-
+extern u8 G_au8DebugScanfBuffer[];
+extern u8 G_au8DebugScanfCharCount;
 /***********************************************************************************************************************
 Global variable definitions with scope limited to this local application.
 Variable names shall start with "UserApp1_" and be declared as static.
@@ -136,7 +137,61 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
 {
+  static u8 u8Key = 0; 
+  static bool bBuzzerIsOn = FALSE;
+  static u8 u8TimeCounter = 0;
+  static u8 au8String[]="please press '1-7','q-u','a-j'";
+  /*static u8 au8Gamut[7][3]={{262,523,1046},
+                            {294,578,1175},
+                            {330,628,1318},
+                            {349,698,1397},
+                            {392,784,1568},
+                            {440,880,1760},
+                            {494,988,1976}};*/
+  
+  if(G_au8DebugScanfBuffer[0]!='\0')
+  {
+    u8Key=G_au8DebugScanfBuffer[0];
+    DebugScanf(G_au8DebugScanfBuffer);
+    switch(u8Key)
+    {
+      case '1' : PWMAudioSetFrequency(BUZZER1,523);PWMAudioOn(BUZZER1);bBuzzerIsOn=TRUE;break;
+      case '2' : PWMAudioSetFrequency(BUZZER1,578);PWMAudioOn(BUZZER1);bBuzzerIsOn=TRUE;break;
+      case '3' : PWMAudioSetFrequency(BUZZER1,628);PWMAudioOn(BUZZER1);bBuzzerIsOn=TRUE;break;
+      case '4' : PWMAudioSetFrequency(BUZZER1,698);PWMAudioOn(BUZZER1);bBuzzerIsOn=TRUE;break;
+      case '5' : PWMAudioSetFrequency(BUZZER1,784);PWMAudioOn(BUZZER1);bBuzzerIsOn=TRUE;break;
+      case '6' : PWMAudioSetFrequency(BUZZER1,880);PWMAudioOn(BUZZER1);bBuzzerIsOn=TRUE;break;
+      case '7' : PWMAudioSetFrequency(BUZZER1,988);PWMAudioOn(BUZZER1);bBuzzerIsOn=TRUE;break;
+      case 'q' : PWMAudioSetFrequency(BUZZER1,262);PWMAudioOn(BUZZER1);bBuzzerIsOn=TRUE;break;
+      case 'w' : PWMAudioSetFrequency(BUZZER1,294);PWMAudioOn(BUZZER1);bBuzzerIsOn=TRUE;break;
+      case 'e' : PWMAudioSetFrequency(BUZZER1,330);PWMAudioOn(BUZZER1);bBuzzerIsOn=TRUE;break;
+      case 'r' : PWMAudioSetFrequency(BUZZER1,349);PWMAudioOn(BUZZER1);bBuzzerIsOn=TRUE;break;
+      case 't' : PWMAudioSetFrequency(BUZZER1,392);PWMAudioOn(BUZZER1);bBuzzerIsOn=TRUE;break;
+      case 'y' : PWMAudioSetFrequency(BUZZER1,440);PWMAudioOn(BUZZER1);bBuzzerIsOn=TRUE;break;
+      case 'u' : PWMAudioSetFrequency(BUZZER1,494);PWMAudioOn(BUZZER1);bBuzzerIsOn=TRUE;break;
+      case 'a' : PWMAudioSetFrequency(BUZZER1,1046);PWMAudioOn(BUZZER1);bBuzzerIsOn=TRUE;break;
+      case 's' : PWMAudioSetFrequency(BUZZER1,1175);PWMAudioOn(BUZZER1);bBuzzerIsOn=TRUE;break;
+      case 'd' : PWMAudioSetFrequency(BUZZER1,1318);PWMAudioOn(BUZZER1);bBuzzerIsOn=TRUE;break;
+      case 'f' : PWMAudioSetFrequency(BUZZER1,1397);PWMAudioOn(BUZZER1);bBuzzerIsOn=TRUE;break;
+      case 'g' : PWMAudioSetFrequency(BUZZER1,1568);PWMAudioOn(BUZZER1);bBuzzerIsOn=TRUE;break;
+      case 'h' : PWMAudioSetFrequency(BUZZER1,1760);PWMAudioOn(BUZZER1);bBuzzerIsOn=TRUE;break;
+      case 'j' : PWMAudioSetFrequency(BUZZER1,1976);PWMAudioOn(BUZZER1);bBuzzerIsOn=TRUE;break;
+      default : DebugPrintf(au8String);DebugLineFeed();
+    }
+  }
+  if(bBuzzerIsOn)
+  {
+    u8TimeCounter++;
+    if(u8TimeCounter==250)
+    {
+      u8TimeCounter=0;
+      bBuzzerIsOn=FALSE;
+      PWMAudioOff(BUZZER1);
+    }
+  }
 
+  
+  
 } /* end UserApp1SM_Idle() */
     
 
