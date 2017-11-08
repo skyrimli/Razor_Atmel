@@ -137,13 +137,14 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
 {
-  static u8 au8Name[]={'L','i','z','h','i','h','a','o'};
+  static u8 au8Name[]={'L','i','z','h','i','h','a','o'};  /* input 'Lizhihao' */
   static u32 u32NameTCounter=0;
   static u8 i = 0;
   static u8 j = 0;
   static u8 k = 0;
   static u8 u8Counter = 0;
   static u32 u32NameCounter = 0;
+  
   u32NameCounter=0;
   for(i=0;i<DEBUG_SCANF_BUFFER_SIZE;i++)
   {
