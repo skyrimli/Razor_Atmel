@@ -294,7 +294,7 @@ static void UserApp1SM_Idle(void)
     }
     if(G_u8DebugScanfCharCount>40)
     {
-      if(WasButtonPressed(BUTTON1)) 
+      if(WasButtonPressed(BUTTON1)) /*press down BUTTON1 to display in LCD*/
       {
         ButtonAcknowledge(BUTTON1);
         bDisplay=TRUE;
@@ -334,7 +334,7 @@ static void UserApp1SM_Idle(void)
   }
   if(u8State!=0)
   {
-    if(WasButtonPressed(BUTTON3))
+    if(WasButtonPressed(BUTTON3))//press down BUTTON3 to go back to menu
     {
       ButtonAcknowledge(BUTTON3);
       u8State=0;

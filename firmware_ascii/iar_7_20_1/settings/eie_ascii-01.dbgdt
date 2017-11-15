@@ -106,7 +106,7 @@
         <expressions>
           
           
-        <item>G_u32SystemTime1ms</item><item>u8State</item><item>UserApp_CursorPosition</item><item>G_u8DebugScanfCharCount</item><item>au8StringButton11</item><item>bDisplay</item><item>au8StringButton12</item><item>au8StringButton13</item><item>u16TimeCounter</item><item></item></expressions>
+        <item>G_u32SystemTime1ms</item><item>u8State</item><item>UserApp_CursorPosition</item><item>G_u8DebugScanfCharCount</item><item>au8StringButton11</item><item>bDisplay</item><item>au8StringButton12</item><item>au8StringButton13</item><item>u16TimeCounter</item><item/></expressions>
         <col-names>
           
           
