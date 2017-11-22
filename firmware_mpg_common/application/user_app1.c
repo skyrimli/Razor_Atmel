@@ -147,6 +147,8 @@ static void UserApp1SM_Idle(void)
   static u8 au8Num1[10]={0};
   static u8 au8Num2[10]={0};
   static bool bPrint = FALSE;
+  static bool bCommandPrint = FALSE;
+  static u8 u8DelayCounter = 0;
   static u8 u8Num1_Message1[] = "Enter commands as LED-ONTIME-OFFTIME and press Enter\n\r";
   static u8 u8Num1_Message2[] = "Time is in milliseconds, max 100 commands\n\r";
   static u8 u8Num1_Message3[] = "LED colors : R, O, Y, G, C, B, P, W\n\r";
@@ -157,9 +159,10 @@ static void UserApp1SM_Idle(void)
   static u8 u8Num2_Message3[] = "-----------------------\n\r";
   static u8 u8Num2_Message7[] = "-----------Continue-input-----------\n\r";
   static u8 u8Num1_Message6[] = "Invalid command: incorrect format. Please use L-ONTIME-OFFTIME\n\r";
-  static u8 u8Num2_Message4[] = "When show USER program, press 0 to WIPE DATA and reset\n\r";
-  static u8 u8Num2_Message5[] = "When show USER program, press Enter to continue intut\n\r";
+  static u8 u8Num2_Message4[] = "Please press 0 to WIPE DATA and reset\n\r";
+  static u8 u8Num2_Message5[] = "Please press Enter to continue intut\n\r";
   static u8 u8Num2_Message6[] = "Command Number: ";
+  static u8 u8DelayDisplay = 0;
   static u8 u8FigureCounter1 = 0;
   static u8 u8FigureCounter2 = 0;
   static u8 u8CommandCounter = 0;
@@ -173,9 +176,6 @@ static void UserApp1SM_Idle(void)
       DebugPrintf(u8String0);
       DebugPrintf(u8String1);
       DebugPrintf(u8String2);
-      DebugPrintf(u8String3);
-      DebugPrintf(u8Num2_Message4);
-      DebugPrintf(u8Num2_Message5);
       DebugPrintf(u8String3);
       bMenuOn = TRUE;
     }
@@ -200,6 +200,7 @@ static void UserApp1SM_Idle(void)
     {
       u8State = 2;
       bPrint = TRUE;
+      bCommandPrint=FALSE;
       DebugScanf(au8Buffer0);
       if(bPrint)
       {
@@ -228,15 +229,10 @@ static void UserApp1SM_Idle(void)
         DebugPrintf(u8Num2_Message1);
         DebugPrintf(u8Num2_Message2);
         DebugPrintf(u8Num2_Message3);
-        for(u8 i=0;i<(u8CommandCounter/2);i++)
-        {
-          LedDisplayPrintListLine(i);
-          DebugLineFeed();
-        }
-        DebugPrintf(u8Num2_Message3);
         bPrint = FALSE;
-      }   
+      }
     }
+
     if(G_au8DebugScanfBuffer[G_u8DebugScanfCharCount-1]==0x0d)
     {
       bInputRight = TRUE;
@@ -370,6 +366,15 @@ static void UserApp1SM_Idle(void)
       
       if(bInputRight==FALSE)
       {  
+        for(u8 i=0;i<10;i++)
+        {
+          au8Num1[i]=0;
+          au8Num2[i]=0;
+        }
+        for(u8 i=0;i<20;i++)
+        {
+          au8Buffer[i]=0;
+        }
         DebugPrintf(u8Num1_Message6);
         DebugLineFeed();
         bInputRight = TRUE;   
@@ -377,7 +382,37 @@ static void UserApp1SM_Idle(void)
     }
   }
   if(u8State==2)
-  {     
+  {  
+    if(bCommandPrint==FALSE)
+    {
+      u8DelayDisplay++;
+      if(u8DelayDisplay==100)
+      {
+        if(u8DelayCounter<(u8CommandCounter/2)-6)
+        {
+          for(u8 i=u8DelayCounter;i<u8DelayCounter+6;i++)
+          {
+            LedDisplayPrintListLine(i);
+            DebugLineFeed();
+          }
+          u8DelayCounter+=6;
+          u8DelayDisplay=0;
+        }
+        else
+        {
+          for(u8 i=u8DelayCounter;i<(u8CommandCounter/2);i++)
+          {
+            LedDisplayPrintListLine(i);
+            DebugLineFeed();
+          }
+          DebugPrintf(u8Num2_Message3);
+          DebugPrintf(u8Num2_Message4);
+          DebugPrintf(u8Num2_Message5);
+          u8DelayDisplay=0;
+          bCommandPrint=TRUE;
+        }      
+      }
+    }
     if(G_au8DebugScanfBuffer[0]=='0')
     {
       u8State = 0; 
