@@ -81,6 +81,7 @@ Promises:
 */
 void UserApp1Initialize(void)
 {
+  PWMAudioSetFrequency(BUZZER1,5000);
   u8 au8UserApp1Start1[] = "LED program task started\n\r";
   
   /* Turn off the Debug task command processor and announce the task is ready */
@@ -147,6 +148,7 @@ static void UserApp1SM_Idle(void)
   static u8 au8Num1[10]={0};
   static u8 au8Num2[10]={0};
   static bool bPrint = FALSE;
+  static bool bSerialNumber = TRUE;
   static bool bCommandPrint = FALSE;
   static u8 u8DelayCounter = 0;
   static u8 u8Num1_Message1[] = "Enter commands as LED-ONTIME-OFFTIME and press Enter\n\r";
@@ -155,22 +157,26 @@ static void UserApp1SM_Idle(void)
   static u8 u8Num1_Message4[] = "Example: R-100-2000(Red on at 100ms and off at 200ms)\n\r";
   static u8 u8Num1_Message5[] = "Press Enter on blank line to end\n\r";
   static u8 u8Num2_Message1[] = "Current USER program\n\r";
-  static u8 u8Num2_Message2[] = "LED   ON TIME  OFF TIME\n\r";
+  static u8 u8Num2_Message2[] = "LED  ON TIME   OFF TIME\n\r";
   static u8 u8Num2_Message3[] = "-----------------------\n\r";
   static u8 u8Num2_Message7[] = "-----------Continue-input-----------\n\r";
   static u8 u8Num1_Message6[] = "Invalid command: incorrect format. Please use L-ONTIME-OFFTIME\n\r";
   static u8 u8Num2_Message4[] = "Please press 0 to WIPE DATA and reset\n\r";
   static u8 u8Num2_Message5[] = "Please press Enter to continue intut\n\r";
   static u8 u8Num2_Message6[] = "Command Number: ";
+  static u32 u32LineCounter = 1;
+  static u8 u8Num1_Message7[] = ": ";
   static u8 u8DelayDisplay = 0;
   static u8 u8FigureCounter1 = 0;
   static u8 u8FigureCounter2 = 0;
   static u8 u8CommandCounter = 0;
   static u8 bInputRight = TRUE;
+  static u8 bAudioOn = FALSE;
+  static u8 AudioCounter = 0;
   static LedCommandType order1[200];
-  if(u8State==0)
+  
+  if(u8State==0)/*CHOOSE MENU*/
   {
-    u32CommandNum=0;
     if(bMenuOn==FALSE)
     {
       DebugPrintf(u8String0);
@@ -196,7 +202,7 @@ static void UserApp1SM_Idle(void)
         bPrint = FALSE;
       }
     }
-    if(G_au8DebugScanfBuffer[0]=='2')
+    if(G_au8DebugScanfBuffer[0]=='2')/*go to user list*/
     {
       u8State = 2;
       bPrint = TRUE;
@@ -211,11 +217,25 @@ static void UserApp1SM_Idle(void)
         bPrint = FALSE;
       }
     }
-  }
-  if(u8State==1)
-  {
-    if(G_au8DebugScanfBuffer[0]==0x0d)
+    if(G_au8DebugScanfBuffer[0]!='\0'&&G_au8DebugScanfBuffer[0]!='1'&&G_au8DebugScanfBuffer[0]!='2')
     {
+      DebugScanf(au8Buffer0);
+      bMenuOn=FALSE;
+      if(bMenuOn==FALSE)
+      {
+        DebugPrintf(u8String0);
+        DebugPrintf(u8String1);
+        DebugPrintf(u8String2);
+        DebugPrintf(u8String3);
+        bMenuOn = TRUE;
+      }
+    }
+  }/*end choose*/
+  if(u8State==1)/*INPUT MENU*/
+  {
+    if(G_au8DebugScanfBuffer[0]==0x0d)/*in blank line, Press enter to finish input*/
+    {
+      bSerialNumber = FALSE;      
       u8State = 2; 
       bPrint = TRUE;
       DebugScanf(au8Buffer0);
@@ -232,15 +252,25 @@ static void UserApp1SM_Idle(void)
         bPrint = FALSE;
       }
     }
-
-    if(G_au8DebugScanfBuffer[G_u8DebugScanfCharCount-1]==0x0d)
+    if(bSerialNumber==TRUE)/*serial number*/
     {
+      if(bPrint==FALSE)
+      {
+        DebugPrintNumber(u32LineCounter);
+        DebugPrintf(u8Num1_Message7);
+        bPrint = TRUE;
+      }
+    }
+    if(G_au8DebugScanfBuffer[G_u8DebugScanfCharCount-1]==0x0d)/*press enter to finish a command*/
+    {
+      u32LineCounter++;
       bInputRight = TRUE;
       DebugScanf(au8Buffer);
       DebugLineFeed(); 
-      if(au8Buffer[1]=='-')
+      
+      if(au8Buffer[1]=='-')/*judge the first '-'*/
       {
-        switch(au8Buffer[0])
+        switch(au8Buffer[0])/*check the LED colour*/
         {
         case 'R': 
         case 'O': 
@@ -261,16 +291,16 @@ static void UserApp1SM_Idle(void)
         }
         for(u8 i=2;i<sizeof(au8Buffer);i++)
         {
-          if(au8Buffer[i]=='-')
+          if(au8Buffer[i]=='-')/*judge the second '-'*/
           {
             u8FigureCounter1=i;
           }
         }
-        for(u8 i=2;i<u8FigureCounter1;i++)
+        for(u8 i=2;i<u8FigureCounter1;i++)/*record on time*/
         {
           au8Num1[i-2]=au8Buffer[i];
         }
-        for(u8 i=u8FigureCounter1+1;i<=u8FigureCounter2;i++)
+        for(u8 i=u8FigureCounter1+1;i<=u8FigureCounter2;i++)/*record off time*/
         {
           au8Num2[i-(u8FigureCounter1+1)]=au8Buffer[i];
         }
@@ -282,7 +312,7 @@ static void UserApp1SM_Idle(void)
       
       if(bInputRight)
       {
-        for(u8 i=0;i<u8FigureCounter1-2;i++)
+        for(u8 i=0;i<u8FigureCounter1-2;i++)/*check led on time*/
         {
           switch(au8Num1[i])
           {
@@ -303,7 +333,7 @@ static void UserApp1SM_Idle(void)
         {
           for(u8 i=0;i<(u8FigureCounter2-u8FigureCounter1-1);i++)
           {
-            switch(au8Num2[i])
+            switch(au8Num2[i])/*check led off time*/
             {
             case '0':
             case '1':
@@ -349,7 +379,10 @@ static void UserApp1SM_Idle(void)
               order1[u8CommandCounter].bOn = FALSE;
               order1[u8CommandCounter].eCurrentRate = LED_PWM_0;
               LedDisplayAddCommand(USER_LIST, &order1[u8CommandCounter]);
-              u8CommandCounter++;
+              u8CommandCounter++;/*put the data into struct array*/
+              PWMAudioOn(BUZZER1);
+              bAudioOn=TRUE;
+              bPrint = FALSE;
               for(u8 i=0;i<10;i++)
               {
                 au8Num1[i]=0;
@@ -366,6 +399,8 @@ static void UserApp1SM_Idle(void)
       
       if(bInputRight==FALSE)
       {  
+        bPrint = FALSE;
+        u32LineCounter--;
         for(u8 i=0;i<10;i++)
         {
           au8Num1[i]=0;
@@ -380,13 +415,23 @@ static void UserApp1SM_Idle(void)
         bInputRight = TRUE;   
       }
     }
+    if(bAudioOn)
+    {
+      AudioCounter++;
+      if(AudioCounter==100)
+      {
+        PWMAudioOff(BUZZER1);
+        bAudioOn = FALSE;
+        AudioCounter=0;
+      }
+    }
   }
-  if(u8State==2)
+  if(u8State==2)/* user list*/
   {  
     if(bCommandPrint==FALSE)
     {
       u8DelayDisplay++;
-      if(u8DelayDisplay==100)
+      if(u8DelayDisplay==100)/*use a Counter to delay dispaly*/
       {
         if(u8DelayCounter<(u8CommandCounter/2)-6)
         {
@@ -409,22 +454,30 @@ static void UserApp1SM_Idle(void)
           DebugPrintf(u8Num2_Message4);
           DebugPrintf(u8Num2_Message5);
           u8DelayDisplay=0;
+          u8DelayCounter=0;
           bCommandPrint=TRUE;
         }      
-      }
+      }/*end the Counter*/
     }
-    if(G_au8DebugScanfBuffer[0]=='0')
+    if(G_au8DebugScanfBuffer[0]=='0')/*wipe data and list*/
     {
       u8State = 0; 
       bMenuOn = FALSE;
+      u32CommandNum = 0;
+      u32LineCounter = 1;
+      u8CommandCounter = 0;
+      bSerialNumber = TRUE;
       LedDisplayStartList();
       DebugScanf(au8Buffer0);
+      bCommandPrint=FALSE;
     }
-    if(G_au8DebugScanfBuffer[0]==0x0d)
+    if(G_au8DebugScanfBuffer[0]==0x0d)/*return to input state*/
     {
       u8State=1;
+      bSerialNumber = TRUE;
       DebugScanf(au8Buffer0);
       DebugPrintf(u8Num2_Message7);
+      bCommandPrint=FALSE;
     }
   }
 } /* end UserApp1SM_Idle() */
