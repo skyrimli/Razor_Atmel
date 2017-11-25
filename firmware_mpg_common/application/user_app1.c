@@ -137,9 +137,10 @@ State Machine Function Definitions
 static void UserApp1SM_Idle(void)
 {
   static u8 u8String0[] = "LED Programming Interface\n\r";
-  static u8 u8String1[] = "Press 1 to program LED command sequence\n\r";
-  static u8 u8String2[] = "Press 2 to show current USER program\n\r";
-  static u8 u8String3[] = "****************************************************************\n\r";
+  static u8 u8String1[] = "Press 0 to wipe data\n\r";
+  static u8 u8String2[] = "Press 1 to program LED command sequence\n\r";
+  static u8 u8String3[] = "Press 2 to show current USER program\n\r";
+  static u8 u8String4[] = "****************************************************************\n\r";
   static bool bMenuOn = FALSE;
   static u8 u8State = 0;
   static u8 au8Buffer0[]={0};
@@ -153,7 +154,7 @@ static void UserApp1SM_Idle(void)
   static u8 u8DelayCounter = 0;
   static u8 u8Num1_Message1[] = "Enter commands as LED-ONTIME-OFFTIME and press Enter\n\r";
   static u8 u8Num1_Message2[] = "Time is in milliseconds, max 100 commands\n\r";
-  static u8 u8Num1_Message3[] = "LED colors : R, O, Y, G, C, B, P, W\n\r";
+  static u8 u8Num1_Message3[] = "LED colors : R, r, O, o, Y, y, G, g, C, c, B, b, P, p , W, w\n\r";
   static u8 u8Num1_Message4[] = "Example: R-100-2000(Red on at 100ms and off at 200ms)\n\r";
   static u8 u8Num1_Message5[] = "Press Enter on blank line to end\n\r";
   static u8 u8Num2_Message1[] = "Current USER program\n\r";
@@ -161,9 +162,10 @@ static void UserApp1SM_Idle(void)
   static u8 u8Num2_Message3[] = "-----------------------\n\r";
   static u8 u8Num2_Message7[] = "-----------Continue-input-----------\n\r";
   static u8 u8Num1_Message6[] = "Invalid command: incorrect format. Please use L-ONTIME-OFFTIME\n\r";
-  static u8 u8Num2_Message4[] = "Please press 0 to WIPE DATA and reset\n\r";
+  static u8 u8Num2_Message4[] = "Please press 0 to back to menu\n\r";
   static u8 u8Num2_Message5[] = "Please press Enter to continue intut\n\r";
   static u8 u8Num2_Message6[] = "Command Number: ";
+  static u8 u8Num0_Message1[] = "wipe data successfully\n\r";
   static u32 u32LineCounter = 1;
   static u8 u8Num1_Message7[] = ": ";
   static u8 u8DelayDisplay = 0;
@@ -177,15 +179,31 @@ static void UserApp1SM_Idle(void)
   
   if(u8State==0)/*CHOOSE MENU*/
   {
+    bPrint = TRUE;
+    bSerialNumber=TRUE;
     if(bMenuOn==FALSE)
     {
       DebugPrintf(u8String0);
       DebugPrintf(u8String1);
       DebugPrintf(u8String2);
       DebugPrintf(u8String3);
+      DebugPrintf(u8String4);
       bMenuOn = TRUE;
     }
-    
+    if(G_au8DebugScanfBuffer[0]=='0')
+    {
+      DebugScanf(au8Buffer0);
+      bPrint = TRUE;
+      bMenuOn = FALSE;
+      u32CommandNum = 0;
+      u32LineCounter = 1;
+      u8CommandCounter = 0;
+      bSerialNumber = TRUE;
+      bCommandPrint=FALSE;
+      LedDisplayStartList();
+      DebugPrintf(u8Num0_Message1); 
+      DebugPrintf(u8String4);
+    }
     if(G_au8DebugScanfBuffer[0]=='1')
     {
       u8State = 1;
@@ -217,7 +235,7 @@ static void UserApp1SM_Idle(void)
         bPrint = FALSE;
       }
     }
-    if(G_au8DebugScanfBuffer[0]!='\0'&&G_au8DebugScanfBuffer[0]!='1'&&G_au8DebugScanfBuffer[0]!='2')
+    if(G_au8DebugScanfBuffer[0]!='\0'&&G_au8DebugScanfBuffer[0]!='1'&&G_au8DebugScanfBuffer[0]!='2'&&G_au8DebugScanfBuffer[0]!='0')
     {
       DebugScanf(au8Buffer0);
       bMenuOn=FALSE;
@@ -235,22 +253,10 @@ static void UserApp1SM_Idle(void)
   {
     if(G_au8DebugScanfBuffer[0]==0x0d)/*in blank line, Press enter to finish input*/
     {
-      bSerialNumber = FALSE;      
-      u8State = 2; 
-      bPrint = TRUE;
+      bSerialNumber = FALSE;
+      bMenuOn=FALSE;
       DebugScanf(au8Buffer0);
-      if(bPrint)
-      {
-        DebugLineFeed();       
-        u32CommandNum = (u8CommandCounter/2);       
-        DebugPrintf(u8Num2_Message6);
-        DebugPrintNumber(u32CommandNum);
-        DebugLineFeed();
-        DebugPrintf(u8Num2_Message1);
-        DebugPrintf(u8Num2_Message2);
-        DebugPrintf(u8Num2_Message3);
-        bPrint = FALSE;
-      }
+      u8State = 0;       
     }
     if(bSerialNumber==TRUE)/*serial number*/
     {
@@ -279,7 +285,15 @@ static void UserApp1SM_Idle(void)
         case 'C': 
         case 'B': 
         case 'P': 
-        case 'W': bInputRight = TRUE;break;
+        case 'W':
+        case 'r': 
+        case 'o': 
+        case 'y': 
+        case 'g': 
+        case 'c': 
+        case 'b': 
+        case 'p': 
+        case 'w': bInputRight = TRUE;break;
         default: bInputRight = FALSE;
         }
         for(u8 i=0;i<sizeof(au8Buffer);i++)
@@ -367,6 +381,14 @@ static void UserApp1SM_Idle(void)
               case 'B': order1[u8CommandCounter].eLED = BLUE;break;
               case 'P': order1[u8CommandCounter].eLED = PURPLE;break;
               case 'W': order1[u8CommandCounter].eLED = WHITE;break;
+              case 'r': order1[u8CommandCounter].eLED = RED;break;
+              case 'o': order1[u8CommandCounter].eLED = ORANGE;break;
+              case 'y': order1[u8CommandCounter].eLED = YELLOW;break;
+              case 'g': order1[u8CommandCounter].eLED = GREEN;break;
+              case 'c': order1[u8CommandCounter].eLED = CYAN;break;
+              case 'b': order1[u8CommandCounter].eLED = BLUE;break;
+              case 'p': order1[u8CommandCounter].eLED = PURPLE;break;
+              case 'w': order1[u8CommandCounter].eLED = WHITE;break;
               default: bInputRight = FALSE;
               }         
               order1[u8CommandCounter].u32Time = atoi((char*)au8Num1);
@@ -428,6 +450,14 @@ static void UserApp1SM_Idle(void)
   }
   if(u8State==2)/* user list*/
   {  
+    if(bPrint)
+    {
+      DebugLineFeed();
+      DebugPrintf(u8Num2_Message1);
+      DebugPrintf(u8Num2_Message2);
+      DebugPrintf(u8Num2_Message3);
+      bPrint = FALSE;
+    }
     if(bCommandPrint==FALSE)
     {
       u8DelayDisplay++;
@@ -450,7 +480,11 @@ static void UserApp1SM_Idle(void)
             LedDisplayPrintListLine(i);
             DebugLineFeed();
           }
-          DebugPrintf(u8Num2_Message3);
+          DebugPrintf(u8Num2_Message3);       
+          u32CommandNum = (u8CommandCounter/2);       
+          DebugPrintf(u8Num2_Message6);
+          DebugPrintNumber(u32CommandNum);
+          DebugLineFeed();
           DebugPrintf(u8Num2_Message4);
           DebugPrintf(u8Num2_Message5);
           u8DelayDisplay=0;
@@ -462,14 +496,8 @@ static void UserApp1SM_Idle(void)
     if(G_au8DebugScanfBuffer[0]=='0')/*wipe data and list*/
     {
       u8State = 0; 
-      bMenuOn = FALSE;
-      u32CommandNum = 0;
-      u32LineCounter = 1;
-      u8CommandCounter = 0;
-      bSerialNumber = TRUE;
-      LedDisplayStartList();
+      bMenuOn=FALSE;
       DebugScanf(au8Buffer0);
-      bCommandPrint=FALSE;
     }
     if(G_au8DebugScanfBuffer[0]==0x0d)/*return to input state*/
     {
