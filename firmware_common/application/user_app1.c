@@ -136,9 +136,9 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
 {
-  static u8 u8Message1[] = "Enter 1 or press button1 to get into state 1\n";
-  static u8 u8Message2[] = "Enter 2 or press button2 to get into state 2\n";
-  static u8 u8Message3[] = "*************************************************\n";
+  static u8 u8Message1[] = "Enter 1 or press button1 to get into state 1\n\r";
+  static u8 u8Message2[] = "Enter 2 or press button2 to get into state 2\n\r";
+  static u8 u8Message3[] = "*************************************************\n\r";
   static u8 u8LcdMessage1[] = "STATE 1";
   static u8 u8LcdMessage2[] = "STATE 2";
   static bool bPrint = TRUE;
@@ -173,11 +173,12 @@ static void UserApp1SM_Idle(void)
       }
       
     }
-    if(G_au8DebugScanfBuffer[0]=='1')
+    if(G_au8DebugScanfBuffer[0]=='1'||WasButtonPressed(BUTTON1))
     {
       DebugScanf(u8aurry);
+      DebugLineFeed();
       ButtonAcknowledge(BUTTON1);
-      LCDClearChars(0,10);
+      LCDClearChars(0,20);
       LedOff(WHITE);
       LedOff(PURPLE);
       LedOff(BLUE);
@@ -192,30 +193,13 @@ static void UserApp1SM_Idle(void)
       PWMAudioOff(BUZZER1);
       u8state=1;
     }
-    if(WasButtonPressed(BUTTON1))
+
+    if(G_au8DebugScanfBuffer[0]=='2'||WasButtonPressed(BUTTON2))
     {
       DebugScanf(u8aurry);
-      ButtonAcknowledge(BUTTON1);
-      LCDClearChars(0,10);
-      LedOff(WHITE);
-      LedOff(PURPLE);
-      LedOff(BLUE);
-      LedOff(CYAN);
-      LedOff(GREEN);
-      LedOff(YELLOW);
-      LedOff(ORANGE);
-      LedOff(RED);
-      LedOn(LCD_RED);
-      LedOn(LCD_GREEN);
-      LedOn(LCD_BLUE);
-      PWMAudioOff(BUZZER1);
-      u8state=1;
-    }
-    if(G_au8DebugScanfBuffer[0]=='2')
-    {
-      DebugScanf(u8aurry);
+      DebugLineFeed();
       ButtonAcknowledge(BUTTON2);
-      LCDClearChars(0,10);
+      LCDClearChars(0,20);
       LedOff(WHITE);
       LedOff(PURPLE);
       LedOff(BLUE);
@@ -230,35 +214,19 @@ static void UserApp1SM_Idle(void)
       PWMAudioOff(BUZZER1);
       u8state=2;
     }
-    if(WasButtonPressed(BUTTON2))
-    {
-      DebugScanf(u8aurry);
-      ButtonAcknowledge(BUTTON2);
-      LCDClearChars(0,10);
-      LedOff(WHITE);
-      LedOff(PURPLE);
-      LedOff(BLUE);
-      LedOff(CYAN);
-      LedOff(GREEN);
-      LedOff(YELLOW);
-      LedOff(ORANGE);
-      LedOff(RED);
-      LedOn(LCD_RED);
-      LedOn(LCD_GREEN);
-      LedOn(LCD_BLUE);
-      PWMAudioOff(BUZZER1);
-      u8state=2;
-    }
-    if((G_au8DebugScanfBuffer[0]!='1'&&G_au8DebugScanfBuffer[0]!='2'))
+
+   if(G_au8DebugScanfBuffer[0]!='1'&&G_au8DebugScanfBuffer[0]!='2'&&G_au8DebugScanfBuffer[0]!='\0')
     {
       bPrint = TRUE;
       DebugScanf(u8aurry);
+      DebugLineFeed();
       ButtonAcknowledge(BUTTON1);
     }
     if(WasButtonPressed(BUTTON0)||WasButtonPressed(BUTTON3))
     {
       bPrint = TRUE;
       DebugScanf(u8aurry);
+      DebugLineFeed();
       ButtonAcknowledge(BUTTON1);
     }
   }
