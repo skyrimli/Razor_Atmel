@@ -173,7 +173,7 @@ static void UserApp1SM_Idle(void)
       }
       
     }
-    if(G_au8DebugScanfBuffer[]=='1')
+    if(G_au8DebugScanfBuffer[0]=='1')
     {
       DebugScanf(u8aurry);
       ButtonAcknowledge(BUTTON1);
@@ -211,7 +211,7 @@ static void UserApp1SM_Idle(void)
       PWMAudioOff(BUZZER1);
       u8state=1;
     }
-    if(G_au8DebugScanfBuffer[]=='2')
+    if(G_au8DebugScanfBuffer[0]=='2')
     {
       DebugScanf(u8aurry);
       ButtonAcknowledge(BUTTON2);
@@ -249,7 +249,7 @@ static void UserApp1SM_Idle(void)
       PWMAudioOff(BUZZER1);
       u8state=2;
     }
-    if((G_au8DebugScanfBuffer[]!='1'&&G_au8DebugScanfBuffer[]!='2'))
+    if((G_au8DebugScanfBuffer[0]!='1'&&G_au8DebugScanfBuffer[0]!='2'))
     {
       bPrint = TRUE;
       DebugScanf(u8aurry);
